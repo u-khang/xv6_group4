@@ -98,7 +98,11 @@ vprintf(int fd, const char *fmt, va_list ap)
           s = "(null)";
         for(; *s; s++)
           putc(fd, *s);
-      } else if(c0 == '%'){
+
+      }else if(c0 == 'c'){
+  putc(fd, va_arg(ap, int)); // Read a single character and print it
+      } 
+      else if(c0 == '%'){
         putc(fd, '%');
       } else {
         // Unknown % sequence.  Print it to draw attention.
