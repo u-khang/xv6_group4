@@ -27,7 +27,7 @@ int validate_process_cmd(char C, int *newline, int *interp) {
             return 0;
         case 'E':
            
-            *interp = 0; // Disable escape sequence interpretation
+            *interp = 1; // Disable escape sequence interpretation
             return 0;
         default:
             return 1; // Not a valid flag
@@ -76,7 +76,6 @@ int main(int argc, char *argv[]) {
                         case 'b': C = '\b'; break;
                         case 'a': C = '\a'; break;
                         case 'c': exit(0); break;
-                        case 'e': C = '\e'; break;
                         case 'f': C = '\f'; break;
                         case 'n': C = '\n'; break;
                         case 'r': C = '\r'; break;
