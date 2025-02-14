@@ -113,6 +113,18 @@ $U/_forktest: $U/forktest.o $(ULIB)
 	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $U/_forktest $U/forktest.o $U/ulib.o $U/usys.o
 	$(OBJDUMP) -S $U/_forktest > $U/forktest.asm
 
+$U/ps.o: $U/ps.c
+	$(CC) $(CFLAGS) -c -o $U/ps.o $U/ps.c
+
+$U/_ps: $U/ps.o $(ULIB)
+	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $U/_ps $U/ps.o $(ULIB)
+
+$U/test_ps.o: $U/test_ps.c
+	$(CC) $(CFLAGS) -c -o $U/test_ps.o $U/test_ps.c
+
+$U/_test_ps: $U/test_ps.o $(ULIB)
+	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $U/_test_ps $U/test_ps.o $(ULIB)
+
 mkfs/mkfs: mkfs/mkfs.c $K/fs.h $K/param.h
 	gcc -Werror -Wall -I. -o mkfs/mkfs mkfs/mkfs.c
 
@@ -140,6 +152,7 @@ UPROGS=\
 	$U/_wc\
 	$U/_zombie\
 	$U/_testecho\
+	$U/_test_ps\
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)
