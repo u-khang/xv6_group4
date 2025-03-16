@@ -169,6 +169,7 @@ freeproc(struct proc *p)
   p->killed = 0;
   p->xstate = 0;
   p->state = UNUSED;
+
 }
 
 // Create a user page table for a given process, with no user memory,
@@ -248,7 +249,7 @@ userinit(void)
 
   safestrcpy(p->name, "initcode", sizeof(p->name));
   p->cwd = namei("/");
-
+  p->priority = 4;      //set first process priority to 4
   p->state = RUNNABLE;
 
   release(&p->lock);
@@ -324,7 +325,54 @@ fork(void)
 
   return pid;
 }
+int
+forkP(int priority)
+{
+  int i, pid;
+  struct proc *np;
+  struct proc *p = myproc();
 
+  // Allocate process.
+  if((np = allocproc()) == 0){
+    return -1;
+  }
+
+  // Copy user memory from parent to child.
+  if(uvmcopy(p->pagetable, np->pagetable, p->sz) < 0){
+    freeproc(np);
+    release(&np->lock);
+    return -1;
+  }
+  np->sz = p->sz;
+
+  // copy saved user registers.
+  *(np->trapframe) = *(p->trapframe);
+
+  // Cause fork to return 0 in the child.
+  np->trapframe->a0 = 0;
+
+  // increment reference counts on open file descriptors.
+  for(i = 0; i < NOFILE; i++)
+    if(p->ofile[i])
+      np->ofile[i] = filedup(p->ofile[i]);
+  np->cwd = idup(p->cwd);
+
+  safestrcpy(np->name, p->name, sizeof(p->name));
+
+  pid = np->pid;
+  np->priority=priority;
+  release(&np->lock);
+
+  acquire(&wait_lock);
+  np->parent = p;
+  release(&wait_lock);
+
+  acquire(&np->lock);
+  np->state = RUNNABLE;
+  release(&np->lock);
+
+  return pid;
+}
 // Pass p's abandoned children to init.
 // Caller must hold wait_lock.
 void
@@ -444,7 +492,7 @@ wait(uint64 addr)
 void
 scheduler(void)
 {
-  struct proc *p;
+  struct proc *p;  //initalize pointer to potential proc
   struct cpu *c = mycpu();
 
   c->proc = 0;

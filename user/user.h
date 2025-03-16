@@ -2,6 +2,7 @@ struct stat;
 
 // system calls
 int fork(void);
+int forkP(int priority);
 int exit(int) __attribute__((noreturn));
 int wait(int*);
 int pipe(int*);

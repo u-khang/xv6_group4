@@ -26,7 +26,13 @@ sys_fork(void)
 {
   return fork();
 }
-
+uint64
+sys_forkP(void)
+{
+  int priority;
+  argint(0, &priority);
+  return forkP(priority);
+}
 uint64
 sys_wait(void)
 {

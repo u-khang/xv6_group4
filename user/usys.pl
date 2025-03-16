@@ -16,6 +16,7 @@ sub entry {
 }
 	
 entry("fork");
+entry("forkP");
 entry("exit");
 entry("wait");
 entry("pipe");

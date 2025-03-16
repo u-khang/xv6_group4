@@ -26,7 +26,6 @@ int validate_process_cmd(char C, int *newline, int *interp) {
             *interp = 0; // Enable escape sequence interpretation
             return 0;
         case 'E':
-           
             *interp = 1; // Disable escape sequence interpretation
             return 0;
         default:
