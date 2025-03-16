@@ -6,7 +6,7 @@
 #include "user/user.h"
 
 #define N  1000
-
+//can use to test forkP aswell 
 void
 print(const char *s)
 {
@@ -21,7 +21,8 @@ forktest(void)
   print("fork test\n");
 
   for(n=0; n<N; n++){
-    pid = fork();
+    //change from fork to forkP
+    pid = forkP(3);
     if(pid < 0)
       break;
     if(pid == 0)

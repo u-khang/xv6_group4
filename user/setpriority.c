@@ -9,15 +9,12 @@ int main(int argc, char *argv[]) {
   }
 
   int priority = atoi(argv[1]);
-  int pid = forkP(priority);
-
-  if (pid < 0) {
-    printf("forkP failed\n");
-  } else if (pid == 0) {
-    printf("Child process with priority %d\n", priority);
-  } else {
-    printf("Parent process created child %d with priority %d\n", pid, priority);
-  }
+ 
+  int parentpid = getpid();
+  printf("Process pid: %d\n", parentpid);
+  int pid2=setpriority(2);
+  printf("set priority %d to pid:%d\n", priority,pid2);
+  
 
   exit(0);
 }

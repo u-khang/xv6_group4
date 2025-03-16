@@ -34,6 +34,13 @@ sys_forkP(void)
   return forkP(priority);
 }
 uint64
+sys_setpriority(void)
+{
+  int priority;
+  argint(0, &priority);
+  return setpriority(priority);
+}
+uint64
 sys_wait(void)
 {
   uint64 p;

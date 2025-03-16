@@ -325,13 +325,30 @@ fork(void)
 
   return pid;
 }
+//set current process priority level from 0-4
+int setpriority(int priority){
+
+    if (priority<0 || priority>4){
+      //invalid priority
+      return -1;
+    }
+    //get pointer to current process
+    struct proc *p = myproc();
+    //set priority
+    p->priority=priority;
+    //success
+    return 0;
+}
 int
 forkP(int priority)
 {
   int i, pid;
   struct proc *np;
   struct proc *p = myproc();
-
+  if (priority<0 || priority>4){
+    //invalid priority
+    return -1;
+  }
   // Allocate process.
   if((np = allocproc()) == 0){
     return -1;
@@ -360,6 +377,7 @@ forkP(int priority)
   safestrcpy(np->name, p->name, sizeof(p->name));
 
   pid = np->pid;
+  
   np->priority=priority;
   release(&np->lock);
 
@@ -505,6 +523,7 @@ scheduler(void)
     int found = 0;
     for(p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
+      //printf("%d",p->priority);
       if(p->state == RUNNABLE) {
         // Switch to chosen process.  It is the process's job
         // to release its lock and then reacquire it
