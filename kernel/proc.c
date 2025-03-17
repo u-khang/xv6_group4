@@ -124,7 +124,7 @@ allocproc(void)
 found:
   p->pid = allocpid();
   p->state = USED;
-
+  p->priority = 4; //default priority level
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
     freeproc(p);
@@ -169,6 +169,7 @@ freeproc(struct proc *p)
   p->killed = 0;
   p->xstate = 0;
   p->state = UNUSED;
+  p->priority = 4;
 
 }
 
@@ -336,6 +337,8 @@ int setpriority(int priority){
     struct proc *p = myproc();
     //set priority
     p->priority=priority;
+    printf("Process %d priority set to %d\n", p->pid, p->priority);
+    yield();
     //success
     return 0;
 }
@@ -512,37 +515,42 @@ scheduler(void)
 {
   struct proc *p;  //initalize pointer to potential proc
   struct cpu *c = mycpu();
-
+  struct proc *tempproc;
   c->proc = 0;
   for(;;){
     // The most recent process to run may have had interrupts
     // turned off; enable them to avoid a deadlock if all
     // processes are waiting.
     intr_on();
-
-    int found = 0;
+    int highest=5; //set to 5 initialy so that if there is only a process wiht priority 4 it can run
+    tempproc=0;
     for(p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
       //printf("%d",p->priority);
-      if(p->state == RUNNABLE) {
+      if(p->state == RUNNABLE && p->priority<highest) {
         // Switch to chosen process.  It is the process's job
         // to release its lock and then reacquire it
         // before jumping back to us.
-        p->state = RUNNING;
-        c->proc = p;
-        swtch(&c->context, &p->context);
-
-        // Process is done running for now.
-        // It should have changed its p->state before coming back.
-        c->proc = 0;
-        found = 1;
+        highest=p->priority;
+        tempproc=p;
       }
       release(&p->lock);
     }
-    if(found == 0) {
+    if(tempproc == 0) {
       // nothing to run; stop running on this core until an interrupt.
       intr_on();
       asm volatile("wfi");
+    }
+    else{
+      acquire(&tempproc->lock);
+      if (tempproc->state == RUNNABLE){ //check if proc is still runnable
+        printf("Scheduler selected Process %d (Priority %d)\n", tempproc->pid, tempproc->priority);
+        tempproc->state = RUNNING;
+        c->proc = tempproc;
+        swtch(&c->context, &tempproc->context);
+        c->proc = 0;
+      }
+      release(&tempproc->lock);
     }
   }
 }

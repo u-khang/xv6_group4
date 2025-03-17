@@ -2,19 +2,32 @@
 #include "kernel/stat.h"
 #include "user/user.h"
 
-int main(int argc, char *argv[]) {
-  if (argc != 2) {
-    printf("Usage: setpriority <priority>\n");
-    exit(1);
-  }
+#define NUM_PROCS 5
 
-  int priority = atoi(argv[1]);
- 
-  int parentpid = getpid();
-  printf("Process pid: %d\n", parentpid);
-  int pid2=setpriority(2);
-  printf("set priority %d to pid:%d\n", priority,pid2);
-  
+int main() {
+    int priorities[NUM_PROCS] = {3, 1, 4, 2, 0};  // Lower value = higher priority
 
-  exit(0);
+    for (int i = 0; i < NUM_PROCS; i++) {
+        int pid = fork();
+        if (pid < 0) {
+            exit(1);  // Exit silently if fork fails
+        }
+        if (pid == 0) {  // Child process
+            setpriority(priorities[i]);
+            
+            // Simulate workload
+            for (int j = 0; j < 5; j++) {
+                sleep(10);  // Small delay to simulate execution
+            }
+
+            exit(0);
+        }
+    }
+
+    // Parent waits for all child processes to finish
+    for (int i = 0; i < NUM_PROCS; i++) {
+        wait(0);
+    }
+
+    exit(0);
 }

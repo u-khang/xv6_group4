@@ -36,6 +36,7 @@ int validate_process_cmd(char C, int *newline, int *interp) {
 int main(int argc, char *argv[]) {
     int newline = 0; // 0 means print newline, 1 means suppress newline
     int interp = 1;  // Default behavior: do not interpret escape sequences
+    setpriority(1);
     
     // Ensure argv[1] exists before accessing it
     if (argc > 1) {
