@@ -336,9 +336,12 @@ int setpriority(int priority){
     //get pointer to current process
     struct proc *p = myproc();
     //set priority
+    acquire(&p->lock);
     p->priority=priority;
     printf("Process %d priority set to %d\n", p->pid, p->priority);
-    yield();
+    release(&p->lock);
+    
+    
     //success
     return 0;
 }

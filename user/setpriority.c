@@ -17,9 +17,10 @@ int main() {
             
             // Simulate workload
             for (int j = 0; j < 5; j++) {
-                sleep(10);  // Small delay to simulate execution
+                  // Small delay to simulate execution
+                  sleep(10);
             }
-
+           
             exit(0);
         }
     }
