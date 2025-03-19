@@ -384,7 +384,7 @@ forkP(int priority)
 
   pid = np->pid;
   
-  np->priority=priority;
+  setpriority(priority);
   release(&np->lock);
 
   acquire(&wait_lock);
