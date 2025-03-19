@@ -6,6 +6,10 @@
 #include "proc.h"
 #include "defs.h"
 
+int context_switch_count = 0; // initializing counter variable for context switches
+int num_processes = 0;  // Keeps track of active processes, to print out FINAL context switch value
+
+
 struct cpu cpus[NCPU];
 
 struct proc proc[NPROC];
@@ -281,6 +285,8 @@ growproc(int n)
 int
 fork(void)
 {
+  num_processes++; // increment num processes
+  printf("Num processes %d\n", num_processes);
   int i, pid;
   struct proc *np;
   struct proc *p = myproc();
@@ -419,6 +425,14 @@ void
 exit(int status)
 {
   printf("Process %d finished. Completion time: %d ticks\n", myproc()->pid, ticks);
+  num_processes--; // decrement
+
+  //printf("Num processes %d\n", num_processes);
+
+  if (num_processes == 1) { // this means we are at the "last" process... always need at least 1 process running.
+    printf("Total Context Switches: %d\n", context_switch_count);
+  }
+
   struct proc *p = myproc();
 
   if(p == initproc)
@@ -515,7 +529,6 @@ wait(uint64 addr)
 //  - eventually that process transfers control
 //    via swtch back to the scheduler.
 
-int context_switch_count = 0; // initializing counter variable for context switches
 
 void
 scheduler(void)
@@ -540,7 +553,7 @@ scheduler(void)
         // before jumping back to us.
 
         context_switch_count++;
-        printf("Context Switch Count: %d\n", context_switch_count); // print out the count every switch
+        //printf("Context Switch Count: %d\n", context_switch_count); // print out the count every switch
         highest=p->priority;
         tempproc=p;
       }
