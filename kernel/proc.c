@@ -418,6 +418,7 @@ reparent(struct proc *p)
 void
 exit(int status)
 {
+  printf("Process %d finished. Completion time: %d ticks\n", myproc()->pid, ticks);
   struct proc *p = myproc();
 
   if(p == initproc)
