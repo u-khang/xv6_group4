@@ -540,7 +540,7 @@ scheduler(void)
         // before jumping back to us.
 
         context_switch_count++;
-        printf("Context Switch Count: %d", context_switch_count);
+        printf("Context Switch Count: %d\n", context_switch_count); // print out the count every switch
         highest=p->priority;
         tempproc=p;
       }
