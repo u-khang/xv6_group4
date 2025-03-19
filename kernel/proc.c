@@ -513,6 +513,9 @@ wait(uint64 addr)
 //  - swtch to start running that process.
 //  - eventually that process transfers control
 //    via swtch back to the scheduler.
+
+int context_switch_count = 0; // initializing counter variable for context switches
+
 void
 scheduler(void)
 {
@@ -534,6 +537,9 @@ scheduler(void)
         // Switch to chosen process.  It is the process's job
         // to release its lock and then reacquire it
         // before jumping back to us.
+
+        context_switch_count++;
+        printf("Context Switch Count: %d", context_switch_count);
         highest=p->priority;
         tempproc=p;
       }
@@ -557,6 +563,7 @@ scheduler(void)
     }
   }
 }
+
 
 // Switch to scheduler.  Must hold only p->lock
 // and have changed proc->state. Saves and restores
