@@ -26,7 +26,7 @@ struct cpu {
   int intena;                 // Were interrupts enabled before push_off()?
 };
 int forkP(int priority);      // fork with priority level options
-int setpriority(int priority); // set current process priority level
+int setpriority(int pid,int priority); // set current process priority level
 
 extern struct cpu cpus[NCPU];
 

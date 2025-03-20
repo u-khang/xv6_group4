@@ -37,8 +37,10 @@ uint64
 sys_setpriority(void)
 {
   int priority;
-  argint(0, &priority);
-  return setpriority(priority);
+  int pid;
+  argint(0,&pid);
+  argint(1, &priority);
+  return setpriority(pid,priority);
 }
 uint64
 sys_wait(void)

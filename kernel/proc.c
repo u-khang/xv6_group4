@@ -333,7 +333,7 @@ fork(void)
   return pid;
 }
 //set current process priority level from 0-4
-int setpriority(int priority){
+int setpriority(int pid,int priority){
 
     if (priority<0 || priority>4){
       //invalid priority
@@ -341,15 +341,21 @@ int setpriority(int priority){
     }
     //get pointer to current process
     struct proc *p = myproc();
+    
     //set priority
-    acquire(&p->lock);
-    p->priority=priority;
-    printf("Process %d priority set to %d\n", p->pid, p->priority);
-    release(&p->lock);
-    
-    
-    //success
-    return 0;
+    for(p = proc; p < &proc[NPROC]; p++){
+      acquire(&p->lock);
+      if(p->pid == pid) {
+        // Found the process: update its priority.
+        p->priority = priority;
+        
+        printf("Process %d priority changed to %d\n", pid, priority);
+        release(&p->lock);
+        return 0;
+      }
+      release(&p->lock);
+    }
+    return -1;
 }
 int
 forkP(int priority)
@@ -390,7 +396,7 @@ forkP(int priority)
 
   pid = np->pid;
   
-  setpriority(priority);
+ 
   release(&np->lock);
 
   acquire(&wait_lock);
@@ -567,7 +573,7 @@ scheduler(void)
     else{
       acquire(&tempproc->lock);
       if (tempproc->state == RUNNABLE){ //check if proc is still runnable
-        printf("Scheduler selected Process %d (Priority %d)\n", tempproc->pid, tempproc->priority);
+        //printf("Scheduler selected Process %d (Priority %d)\n", tempproc->pid, tempproc->priority);
         tempproc->state = RUNNING;
         c->proc = tempproc;
         swtch(&c->context, &tempproc->context);

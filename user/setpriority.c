@@ -13,7 +13,7 @@ int main() {
             exit(1);  // Exit silently if fork fails
         }
         if (pid == 0) {  // Child process
-            setpriority(priorities[i]);
+            setpriority(getpid(),priorities[i]);
             
             // Simulate workload
             for (int j = 0; j < 5; j++) {
