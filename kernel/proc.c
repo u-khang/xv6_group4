@@ -550,10 +550,11 @@ scheduler(void)
     intr_on();
     int highest=5; //set to 5 initialy so that if there is only a process wiht priority 4 it can run
     tempproc=0;
+    
     for(p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
       //printf("%d",p->priority);
-      if(p->state == RUNNABLE && p->priority<highest) {
+      if((p->state == RUNNABLE || p->state==RUNNING ) && p->priority<highest) {
         // Switch to chosen process.  It is the process's job
         // to release its lock and then reacquire it
         // before jumping back to us.
@@ -572,7 +573,7 @@ scheduler(void)
     }
     else{
       acquire(&tempproc->lock);
-      if (tempproc->state == RUNNABLE){ //check if proc is still runnable
+      if (tempproc->state == RUNNABLE || p->state==RUNNING){ //check if proc is still runnable
         //printf("Scheduler selected Process %d (Priority %d)\n", tempproc->pid, tempproc->priority);
         tempproc->state = RUNNING;
         c->proc = tempproc;

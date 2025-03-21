@@ -4,28 +4,24 @@
 
 void infinite_process(int priority) {
     setpriority(getpid(), priority);  // Set priority for the process
-
-    
-
-    int x = 0;
+    printf("Child process %d started with priority %d\n", getpid(), priority);
+    sleep(10); //let other procs get scheduled
     while (1) {  // Infinite loop
-        x = x + 1;  // Dummy operation to keep CPU busy
+        printf("Working on proc %d with priority %d\n", getpid(), priority);
+        //starves all other procs other than if there is a higher priority than 1
+        
     }
 }
 
-int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        printf("Usage: set_infinite_process <priority>\n");
-        exit(1);
+int main() {
+    setpriority(getpid(), 0);  // Set the parent process priority to 0
+
+    for (int i = 4; i > 0; i--) {  // Create 4 processes with priorities 4, 3, 2, 1
+        if (fork() == 0) {
+            infinite_process(i);  // Child process runs infinite loop with its priority
+        }
     }
 
-    int priority = atoi(argv[1]);  // Convert argument to integer
-
-    if (fork() == 0) {
-        // Child process runs infinite loop with given priority
-        infinite_process(priority);
-    }
-
-    // Parent exits, leaving the child running
+    // Parent exits, leaving child processes running
     exit(0);
 }

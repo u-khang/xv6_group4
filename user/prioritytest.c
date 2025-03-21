@@ -11,28 +11,28 @@ int main() {
 
   pid1 = fork();
   if (pid1 == 0) {
-    setpriority(getpid(), 1); // Highest priority
+    setpriority(getpid(), 4); // Highest priority
     workload();
-    sleep(50);
-    printf("TEST: Process %d (priority 1) finished\n", getpid());
+    sleep(100);
+    printf("TEST: Process %d (priority 4) finished\n", getpid());
     exit(0);
   }
 
   pid2 = fork();
   if (pid2 == 0) {
-    setpriority(getpid(), 3); // Medium priority
+    setpriority(getpid(), 0); // Medium priority
     workload();
-    sleep(50);
-    printf("TEST: Process %d (priority 3) finished\n", getpid());
+    sleep(100);
+    printf("TEST: Process %d (priority 0) finished\n", getpid());
     exit(0);
   }
 
   pid3 = fork();
   if (pid3 == 0) {
-    setpriority(getpid(), 4); // Lowest priority
+    setpriority(getpid(), 2); // Lowest priority
     workload();
-    sleep(50);
-    printf("TEST: Process %d (priority 4) finished\n", getpid());
+    sleep(100);
+    printf("TEST: Process %d (priority 2) finished\n", getpid());
     exit(0);
   }
 
