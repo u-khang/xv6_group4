@@ -157,6 +157,7 @@ UPROGS=\
 	$U/_sleep\
 	$U/_setpriority\
 	$U/_dummies\
+	$U/_prioritytest\
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)
