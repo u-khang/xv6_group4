@@ -779,14 +779,17 @@ procdump(void)
   [UNUSED]    "unused",
   [USED]      "used",
   [SLEEPING]  "sleep ",
-  [RUNNABLE]  "runble",
-  [RUNNING]   "run   ",
+  [RUNNABLE]  "runable",
+  [RUNNING]   "running   ",
   [ZOMBIE]    "zombie"
   };
   struct proc *p;
   char *state;
-
+   // Print a header for the output.
   printf("\n");
+  printf("PID\tSTATE\t  NAME\t      PRIORITY\n");
+  printf("------------------------------------------------\n");
+ 
   for(p = proc; p < &proc[NPROC]; p++){
     if(p->state == UNUSED)
       continue;
@@ -794,7 +797,7 @@ procdump(void)
       state = states[p->state];
     else
       state = "???";
-    printf("%d %s %s", p->pid, state, p->name);
+    printf("%d\t%s\t%s\t%d\n", p->pid, state, p->name, p->priority);
     printf("\n");
   }
 }
