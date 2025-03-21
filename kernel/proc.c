@@ -430,13 +430,14 @@ reparent(struct proc *p)
 void
 exit(int status)
 {
-  printf("Process %d finished. Completion time: %d ticks\n", myproc()->pid, ticks);
+  printf("Process %d finished. Completion time: %d ticks priority %d\n", myproc()->pid, ticks,myproc()->priority);
   num_processes--; // decrement
 
   //printf("Num processes %d\n", num_processes);
 
   if (num_processes == 1) { // this means we are at the "last" process... always need at least 1 process running.
     printf("Total Context Switches: %d\n", context_switch_count);
+    context_switch_count=0;
   }
 
   struct proc *p = myproc();
@@ -543,6 +544,7 @@ scheduler(void)
   struct cpu *c = mycpu();
   struct proc *tempproc;
   c->proc = 0;
+  
   for(;;){
     // The most recent process to run may have had interrupts
     // turned off; enable them to avoid a deadlock if all
