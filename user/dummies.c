@@ -2,28 +2,30 @@
 #include "kernel/stat.h"
 #include "user/user.h"
 
-void process_work(int priority) {
-    setpriority(getpid(),priority);  // Set process priority
-    int x=0;
-    int z=0;
-    while (1) {
-        // Infinite loop doing nothing
-        for(z = 0; z < 4000000000; z+=1)
-	    x = x + 3.14*89.64;
+void infinite_process(int priority) {
+    setpriority(getpid(), priority);  // Set priority for the process
+
+    
+
+    int x = 0;
+    while (1) {  // Infinite loop
+        x = x + 1;  // Dummy operation to keep CPU busy
     }
 }
 
-int main() {
-    if (fork() == 0) {
-        // First child process with priority 2
-        process_work(2);
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        printf("Usage: set_infinite_process <priority>\n");
+        exit(1);
     }
 
+    int priority = atoi(argv[1]);  // Convert argument to integer
+
     if (fork() == 0) {
-        // Second child process with priority 3
-        process_work(3);
+        // Child process runs infinite loop with given priority
+        infinite_process(priority);
     }
 
-    // Parent process exits, leaving children running in background
+    // Parent exits, leaving the child running
     exit(0);
 }
