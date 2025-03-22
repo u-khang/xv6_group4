@@ -430,14 +430,13 @@ reparent(struct proc *p)
 void
 exit(int status)
 {
-  printf("Process %d finished. Completion time: %d ticks priority %d\n", myproc()->pid, ticks,myproc()->priority);
+  printf("Process %d finished. Completion time: %d ticks\n", myproc()->pid, ticks);
   num_processes--; // decrement
 
   //printf("Num processes %d\n", num_processes);
 
   if (num_processes == 1) { // this means we are at the "last" process... always need at least 1 process running.
     printf("Total Context Switches: %d\n", context_switch_count);
-    context_switch_count=0;
   }
 
   struct proc *p = myproc();
@@ -536,53 +535,55 @@ wait(uint64 addr)
 //  - eventually that process transfers control
 //    via swtch back to the scheduler.
 
+int last_rr_index = 0; // global variable in proc.c
 
 void
 scheduler(void)
 {
-  struct proc *p;  //initalize pointer to potential proc
+  struct proc *p;
   struct cpu *c = mycpu();
-  struct proc *tempproc;
   c->proc = 0;
-  
-  for(;;){
-    // The most recent process to run may have had interrupts
-    // turned off; enable them to avoid a deadlock if all
-    // processes are waiting.
-    intr_on();
-    int highest=5; //set to 5 initialy so that if there is only a process wiht priority 4 it can run
-    tempproc=0;
-    
-    for(p = proc; p < &proc[NPROC]; p++) {
-      acquire(&p->lock);
-      //printf("%d",p->priority);
-      if((p->state == RUNNABLE || p->state==RUNNING ) && p->priority<highest) {
-        // Switch to chosen process.  It is the process's job
-        // to release its lock and then reacquire it
-        // before jumping back to us.
 
-        context_switch_count++;
-        //printf("Context Switch Count: %d\n", context_switch_count); // print out the count every switch
-        highest=p->priority;
-        tempproc=p;
+  for (;;) {
+    intr_on();
+
+    int highest = 5;
+    // First pass: find highest priority
+    for (p = proc; p < &proc[NPROC]; p++) {
+      acquire(&p->lock);
+      if ((p->state == RUNNABLE || p->state == RUNNING) && p->priority < highest) {
+        highest = p->priority;
       }
       release(&p->lock);
     }
-    if(tempproc == 0) {
-      // nothing to run; stop running on this core until an interrupt.
+
+    // Second pass: do round-robin over procs with same highest priority
+    int found = 0;
+    for (int i = 0; i < NPROC; i++) {
+      int idx = (last_rr_index + i) % NPROC;
+      p = &proc[idx];
+      
+      acquire(&p->lock);
+      if (p->state == RUNNABLE && p->priority == highest) {
+        last_rr_index = (idx + 1) % NPROC; // update for next round
+        context_switch_count++;
+
+	printf("Scheduling Process %d (Priority %d)\n", p->pid, p->priority);
+
+        p->state = RUNNING;
+        c->proc = p;
+        swtch(&c->context, &p->context);
+        c->proc = 0;
+        release(&p->lock);
+        found = 1;
+        break;
+      }
+      release(&p->lock);
+    }
+
+    if (!found) {
       intr_on();
       asm volatile("wfi");
-    }
-    else{
-      acquire(&tempproc->lock);
-      if (tempproc->state == RUNNABLE || p->state==RUNNING){ //check if proc is still runnable
-        //printf("Scheduler selected Process %d (Priority %d)\n", tempproc->pid, tempproc->priority);
-        tempproc->state = RUNNING;
-        c->proc = tempproc;
-        swtch(&c->context, &tempproc->context);
-        c->proc = 0;
-      }
-      release(&tempproc->lock);
     }
   }
 }
