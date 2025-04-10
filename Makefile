@@ -155,6 +155,16 @@ UPROGS=\
 	$U/_ps\
 	$U/_test_ps\
 	$U/_sleep\
+	$U/_setpriority\
+	$U/_dummies\
+	$U/_prioritytest\
+	$U/_test1\
+	$U/_test2\
+	$U/_test3\
+	$U/_test4\
+	$U/_test5\
+	$U/_test6\
+	$U/_test7\
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)
